@@ -1,6 +1,6 @@
 let mongoose=require('mongoose');
 const { type } = require('os');
-mongoose.connect(process.env.URLNET);
+mongoose.connect("mongodb+srv://bulbulkhan420:786786786@cluster0.papmet2.mongodb.net/classmanagement");
 let student=new mongoose.Schema({
     id:String,
     password:String,
