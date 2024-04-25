@@ -1,7 +1,7 @@
 const express=require('express');
 
 
-const { datateacher,dataassignment,datateacherclass,datastudentclass} = require('./database');
+const { datateacher,dataassignment,datateacherclass,datastudentclass,datamessage} = require('./database');
 let teacher=express.Router();
 
 teacher.post("/teacherlogin",async (req,res)=>{
@@ -30,6 +30,21 @@ teacher.post("/downloads", (req,res)=>{
     let id=req.body.id;
     let path=__dirname+"/uploads/"+id;
     res.download(path);
+})
+teacher.post("/sendmessage",async (req,res)=>{
+    let data=req.body.info;
+    let v=await datamessage.insertMany([{name:data.id,year:data.year,message:data.msg}]);
+    if(v){
+        res.json({
+            ok:true
+        })
+    }
+    else{
+        res.json({
+            ok:false
+        })
+    }
+
 })
 teacher.post("/teacherinfo",async (req,res)=>{
     let {id}=req.body;
