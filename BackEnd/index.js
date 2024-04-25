@@ -12,36 +12,7 @@ app.use(express.static('uploads'));
 app.get("/",(req,res)=>{
     res.send("bulbul");
 });
-let server=http.createServer(app);
-let {Server}=require('socket.io');
-const { datamessage } = require('./database.js');
-let io=new Server(server,{
-    cors:{
-        origin:"https://class-vercel-frontend.vercel.app",
-        methods:["GET","POST"]
-    }
-})
-let tr=0;
-io.on('connection',(socket)=>{
-   
-    socket.on("send",async (data)=>{
-        socket.join(data.year);
-        tr++;
-        socket.to(data.year).emit("update",tr);
-    let v=await datamessage.insertMany([{name:data.id,year:data.year,message:data.msg}]);
-    if(v){
-        let p=true;
-        socket.emit('check',p);
-    }
-    else{
-        let p=false;
-        socket.emit('check',p);
-    }
-    
 
-    })
-
-})
-server.listen(3002,(er)=>{
+app.listen(3002,(er)=>{
     console.log("sucess");
 });
