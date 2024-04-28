@@ -1,24 +1,33 @@
 const express=require('express');
 const { dataadmin,datastudent,datateacher,datateacherclass } = require('./database');
 let multer=require('multer');
+const cloudinary = require('cloudinary').v2;
 let admin=express.Router();
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-      cb(null, 'uploads/')
-    },
-    filename: function (req, file, cb) {
+// const storage = multer.diskStorage({
+//     destination: function (req, file, cb) {
+//       cb(null, 'uploads/')
+//     },
+//     filename: function (req, file, cb) {
       
-      cb(null, Date.now()+"_"+file.originalname);
-    }
-  })
-  
-  const upload = multer({ storage: storage });
+//       cb(null, Date.now()+"_"+file.originalname);
+//     }
+//   })
+
+          
+cloudinary.config({ 
+  cloud_name: 'dfhug7rwx', 
+  api_key: '262784511165531', 
+  api_secret: 'T_JoL4AMHQeaMQYy2_GFW8S0uco' 
+});
+  const upload = multer({ dest: 'uploads/' });
   admin.post("/uploadstudentpic",upload.single('image'),async (req,res)=>{
-    let image=req.file;
+   
+    let image=req.file.path;
     let id=req.body.picid;
     let v=await datastudent.findOne({id});
     if(v){
-        await datastudent.updateOne({id},{image:image.filename});
+        const result = await cloudinary.uploader.upload(image);
+        await datastudent.updateOne({id},{image:result.secure_url});
         res.json({
             ok:true
         })
@@ -49,7 +58,7 @@ admin.post("/newstudentadd",async (req,res)=>{
     let y="1-1";
     let p="Not Published Yet";
     let pp=await datastudent.findOne({id});
-    let image="avatar.png";
+    let image="https://res.cloudinary.com/dfhug7rwx/image/upload/v1714331088/oehpp8c6zeftncmeyppc.png";
     if(!pp){
         let v=await datastudent.insertMany([{id,password,image,name,home,hall,email,phone,currentsemester:y,result11:p,result12:p,result21:p,result22:p,result31:p,result32:p,result41:p,result42:p}]);
         if(v){
@@ -164,7 +173,7 @@ admin.post("/adminupdate",async (req,res)=>{
 admin.post("/addteacheradmin",async (req,res)=>{
     let {id,password,name,home,email,phone}=req.body;
     let v=await datateacher.findOne({id});
-    let image="avatar.png";
+    let image="https://res.cloudinary.com/dfhug7rwx/image/upload/v1714331088/oehpp8c6zeftncmeyppc.png";
     if(!v){
         await datateacher.insertMany([{id,password,image,name,home,email,phone}]);
         res.json({
@@ -178,11 +187,12 @@ admin.post("/addteacheradmin",async (req,res)=>{
     }
 })
 admin.post("/teacherpic",upload.single('image1'),async (req,res)=>{
-    let image=req.file;
+    let image=req.file.path;
     let id=req.body.picid;
     let f=await datateacher.findOne({id});
     if(f){
-    let v=await datateacher.updateOne({id},{image:image.filename});
+        const result = await cloudinary.uploader.upload(image);
+    let v=await datateacher.updateOne({id},{image:result.secure_url});
     if(v){
         res.json({
             ok:true
